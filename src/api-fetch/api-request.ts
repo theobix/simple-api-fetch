@@ -37,7 +37,7 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
   public startUpdateInterval() {
     if (this.options?.updateInterval !== undefined && this.options.updateInterval > 0) {
       const updateRequestInterval = setInterval(() => {
-        if (this.state === 'PENDING' || this.state == 'FILTERING') {
+        if (this.state === 'PENDING' || this.state === 'FILTERING') {
           this.options?.callbacks?.onupdate?.(this, this.getElapsedTime())
         } else {
           clearInterval(updateRequestInterval)
