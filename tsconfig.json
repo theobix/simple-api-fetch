@@ -5,7 +5,13 @@
       "es2015",
       "dom"
     ],
-    "target": "es2015"
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "declaration": true,
+    "strict": true,
+    "esModuleInterop": true
   },
   "exclude": [
     "./dist",
