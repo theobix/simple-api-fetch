@@ -33,14 +33,20 @@ class FilterNode {
                 for (const errorFilter of this.errorFilters) {
                     prevOutput = yield errorFilter(prevOutput, this.CALLBACKS);
                     if (Array.isArray(prevOutput) && prevOutput.length === 2) {
-                        if (prevOutput[0] === '_RETRY' && retries < prevOutput[1])
-                            return yield this.process(input, retries + 1);
-                        else if (prevOutput[0] === '_FALLBACK_FILTER') {
-                            const fallbackFilter = prevOutput[1];
-                            return yield fallbackFilter(input);
+                        switch (prevOutput[0]) {
+                            case '_RETRY':
+                                if (retries < prevOutput[1])
+                                    return yield this.process(input, retries + 1);
+                                break;
+                            case '_FALLBACK':
+                                return prevOutput[1];
+                            case '_FALLBACK_FILTER':
+                                if (typeof prevOutput[1] === "function") {
+                                    const fallbackFilter = prevOutput[1];
+                                    return yield fallbackFilter(input);
+                                }
+                                break;
                         }
-                        else if (prevOutput[0] === '_FALLBACK')
-                            return prevOutput[1];
                     }
                 }
                 throw thrown;
@@ -74,6 +80,14 @@ class FilterChain {
     }
     fallbackFilter(fallbackFilter) {
         this.error((_, c) => __awaiter(this, void 0, void 0, function* () { return c.FALLBACK_FILTER(fallbackFilter); }));
+        return this;
+    }
+    constraint(constraint, error) {
+        this.then((value) => __awaiter(this, void 0, void 0, function* () {
+            if (constraint(value))
+                throw error;
+            return value;
+        }));
         return this;
     }
     apply(input, onFilterChanged) {

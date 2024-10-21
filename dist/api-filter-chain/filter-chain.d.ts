@@ -14,6 +14,7 @@ export declare class FilterChain<T, IN, OUT> {
     retry(max: number): FilterChain<T, IN, OUT>;
     fallback(fallback: OUT): FilterChain<T, IN, OUT>;
     fallbackFilter(fallbackFilter: FilterFunction<IN, OUT>): FilterChain<T, IN, OUT>;
+    constraint(constraint: (value: OUT) => boolean, error: any): this;
     apply(input: T, onFilterChanged?: (i: number, filterCount: number) => void): Promise<OUT>;
 }
 export {};

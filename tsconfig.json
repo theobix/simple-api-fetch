@@ -19,5 +19,7 @@
     "./node_modules",
     "./src-capacitor",
     "./src-cordova",
+    "**/*.test.ts",
+    "jest.config.ts"
   ]
 }
