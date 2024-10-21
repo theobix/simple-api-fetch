@@ -95,7 +95,7 @@ export class FilterChain<T, IN, OUT> {
     return this
   }
 
-  constraint(constraint: (value: OUT) => boolean, error: any) {
+  constraint(constraint: (value: OUT) => boolean, error: any = new Error()) {
     this.then(async value => {
       if (constraint(value)) throw error
       return value
