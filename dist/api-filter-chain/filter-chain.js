@@ -84,7 +84,7 @@ class FilterChain {
     }
     constraint(constraint, error = new Error()) {
         this.then((value) => __awaiter(this, void 0, void 0, function* () {
-            if (constraint(value))
+            if (!constraint(value))
                 throw error;
             return value;
         }));

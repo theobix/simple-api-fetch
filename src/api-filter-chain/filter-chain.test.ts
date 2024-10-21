@@ -84,7 +84,7 @@ describe('FilterChain', () => {
     it('should respect constraints added to the filter chain', async () => {
         const filterChain = FilterChain.Create<number>()
             .then(async input => input + 1)
-            .constraint(value => value > 5, new Error('Value exceeds 5'));
+            .constraint(value => value <= 5, new Error('Value exceeds 5'));
 
         await expect(filterChain.apply(5)).rejects.toThrow('Value exceeds 5');
         const result = await filterChain.apply(4);
