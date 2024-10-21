@@ -39,13 +39,22 @@ class FilterNode<IN, OUT> implements FilterNodeInterface<IN, OUT> {
       for (const errorFilter of this.errorFilters) {
         prevOutput = await errorFilter(prevOutput, this.CALLBACKS)
         if (Array.isArray(prevOutput) && prevOutput.length === 2) {
-          if (prevOutput[0] === '_RETRY' && retries < prevOutput[1])
-            return await this.process(input, retries + 1)
-          else if (prevOutput[0] === '_FALLBACK_FILTER') {
-            const fallbackFilter: FilterFunction<IN, OUT> = prevOutput[1]
-            return await fallbackFilter(input)
-          } else if (prevOutput[0] === '_FALLBACK')
-            return prevOutput[1]
+          switch (prevOutput[0]) {
+            case '_RETRY':
+              if (retries < prevOutput[1])
+                return await this.process(input, retries + 1)
+              break
+
+            case '_FALLBACK':
+              return prevOutput[1]
+
+            case '_FALLBACK_FILTER':
+              if (typeof prevOutput[1] === "function") {
+                const fallbackFilter: FilterFunction<IN, OUT> = prevOutput[1]
+                return await fallbackFilter(input)
+              }
+              break
+          }
         }
       }
       throw thrown
@@ -83,6 +92,14 @@ export class FilterChain<T, IN, OUT> {
 
   fallbackFilter(fallbackFilter: FilterFunction<IN, OUT>): FilterChain<T, IN, OUT> {
     this.error(async (_, c) => c.FALLBACK_FILTER(fallbackFilter))
+    return this
+  }
+
+  constraint(constraint: (value: OUT) => boolean, error: any) {
+    this.then(async value => {
+      if (constraint(value)) throw error
+      return value
+    })
     return this
   }
 
