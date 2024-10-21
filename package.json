@@ -14,10 +14,10 @@
     "typescript",
     "plugin"
   ],
-  "author": "FireGreeks <theodorbischler1@gmail.com>",
+  "author": "theobix <theodorbischler1@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/FireGreeks/simple-api-fetch.git"
+    "url": "https://github.com/theobix/simple-api-fetch.git"
   },
   "dependencies": {
 
