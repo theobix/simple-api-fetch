@@ -9,21 +9,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const global_config_1 = require("../config/global-config");
 function apiFetch(request) {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
-        const processedBody = ((_a = request.options) === null || _a === void 0 ? void 0 : _a.bodyPreprocessing) ?
-            yield request.options.bodyPreprocessing.apply(request.body) :
-            JSON.stringify(request.body);
-        return yield fetch('/api/' + request.url, Object.assign({
+        const url = yield preprocessUrl(request);
+        return yield fetch(url, Object.assign({
             method: request.method,
             mode: 'cors',
             cache: 'no-cache',
             credentials: 'same-origin',
             redirect: 'follow',
             referrerPolicy: 'no-referrer',
-            body: processedBody
-        }, (_b = request.options) === null || _b === void 0 ? void 0 : _b.fetchOptions));
+            body: yield preprocessBody(request),
+            headers: getAuthenticationHeader(request)
+        }, request.options));
     });
 }
 exports.default = apiFetch;
+function preprocessUrl(request) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield global_config_1.GlobalApiConfig.urlProcessor.apply(request.url);
+    });
+}
+function preprocessBody(request) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!request.body)
+            return undefined;
+        const { bodyPreprocessing: globalPreprocessing } = global_config_1.GlobalApiConfig;
+        const { bodyPreprocessing: requestPreprocessing } = request.options || {};
+        let preprocessedBody = yield globalPreprocessing.apply(request.body);
+        if (requestPreprocessing)
+            preprocessedBody = yield requestPreprocessing.apply(preprocessedBody);
+        return preprocessedBody;
+    });
+}
+function getAuthenticationHeader(request) {
+    var _a;
+    if (!request.body || !global_config_1.GlobalApiConfig.authentication || ((_a = request.options) === null || _a === void 0 ? void 0 : _a.ignoreAuthentication)) {
+        return undefined;
+    }
+    return { 'Authentication': global_config_1.GlobalApiConfig.authentication() };
+}

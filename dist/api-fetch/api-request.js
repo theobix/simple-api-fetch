@@ -12,7 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const api_request_types_1 = require("./api-request-types");
 const api_fetch_1 = __importDefault(require("./api-fetch"));
+const global_config_1 = require("../config/global-config");
 class ApiRequestImpl {
     constructor(url, method, responseFilterChain, options, body) {
         this.url = url;
@@ -48,10 +50,15 @@ class ApiRequestImpl {
         var _a, _b, _c;
         (_c = (_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onstart) === null || _c === void 0 ? void 0 : _c.call(_b, this);
     }
-    onerror(error) {
+    onerror(requestError) {
         var _a, _b, _c;
         this.setState('ERROR');
-        (_c = (_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onerror) === null || _c === void 0 ? void 0 : _c.call(_b, this, error);
+        if ((_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onerror) {
+            this.options.callbacks.onerror(this, requestError, global_config_1.GlobalApiConfig.errorHandler);
+        }
+        else {
+            (_c = global_config_1.GlobalApiConfig.errorHandler) === null || _c === void 0 ? void 0 : _c.call(global_config_1.GlobalApiConfig, requestError);
+        }
     }
     onfilterstep(i, filterCount) {
         var _a, _b, _c;
@@ -59,20 +66,51 @@ class ApiRequestImpl {
     }
     fetch() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.onstart();
+            this.startUpdateInterval();
+            const response = yield this.makeRequest();
+            if (!response.ok)
+                return this.handleHttpError(response);
+            this.setState('FILTERING');
+            const filtered = yield this.applyFilters(response);
+            this.setState('SUCCESS');
+            return filtered;
+        });
+    }
+    makeRequest() {
+        return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.onstart();
-                this.startUpdateInterval();
-                const response = yield (0, api_fetch_1.default)(this);
-                this.setState('FILTERING');
-                const filtered = yield this.responseFilterChain.apply(response, (i, filterCount) => this.onfilterstep(i, filterCount));
-                this.setState('SUCCESS');
-                return filtered;
+                return yield (0, api_fetch_1.default)(this);
             }
             catch (error) {
-                this.onerror(error);
-                throw error;
+                return this.handleNetworkError(error);
             }
         });
+    }
+    applyFilters(response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.responseFilterChain.apply(response, (i, filterCount) => this.onfilterstep(i, filterCount));
+            }
+            catch (error) {
+                return this.handleFilterError(error);
+            }
+        });
+    }
+    handleHttpError(response) {
+        const error = new api_request_types_1.RequestError('HTTP', response.status, response.statusText);
+        this.onerror(error);
+        throw error;
+    }
+    handleNetworkError(error) {
+        const requestError = new api_request_types_1.RequestError('NETWORK', 0, error);
+        this.onerror(requestError);
+        throw requestError;
+    }
+    handleFilterError(error) {
+        const requestError = new api_request_types_1.RequestError('FILTER', 0, error);
+        this.onerror(requestError);
+        throw requestError;
     }
 }
 exports.default = ApiRequestImpl;
