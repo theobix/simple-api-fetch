@@ -2,9 +2,9 @@ import ApiRequestImpl from "./api-fetch/api-request";
 import {FilterChain} from "./api-filter-chain/filter-chain";
 import {ApiOptions} from "./api-fetch/api-options";
 import filterPresets from "./api-filter-chain/filter-presets";
-import {GlobalApiConfig} from "./config/global-config";
+import {GlobalApiConfig, GlobalApiConfigOptions} from "./config/global-config";
 
-export default {
+const api = {
   get: <T>(
       url: string,
       responseFilterChain: FilterChain<Response, any, T>,
@@ -25,4 +25,12 @@ export default {
   },
   filters: filterPresets,
   globalConfig: GlobalApiConfig
+}
+
+export default {
+  install: (app: any, options: GlobalApiConfigOptions) => {
+    api.globalConfig = options
+    app.config.globalProperties.$api = api
+  },
+  ...api
 }

@@ -1,6 +1,7 @@
 import {FilterChain} from "../api-filter-chain/filter-chain";
 import {ApiRequest, RequestError, RequestState} from "./api-request-types";
 import {GlobalApiConfig} from "../config/global-config";
+import {AuthenticationHeader} from "../config/authentication";
 
 
 export type ApiOptions<T> = {
@@ -14,4 +15,4 @@ export type ApiOptions<T> = {
     onfilterstep?: (request: Readonly<ApiRequest<T>>, i?: number, percent?: number) => void,
     onupdate?: (request: Readonly<ApiRequest<T>>, elapsedTime: number) => void
   }
-} & RequestInit
+} & RequestInit & { headers?: HeadersInit & { 'Authentication': AuthenticationHeader } }
