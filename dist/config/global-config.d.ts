@@ -5,6 +5,6 @@ export type GlobalApiConfigOptions = {
     bodyPreprocessing: FilterChain<BodyInit, any, BodyInit>;
     errorHandler?: (error: RequestError) => void;
     urlProcessor: FilterChain<string, any, string>;
-    authentication?: () => (AuthenticationHeader | undefined);
+    setAuthentication?: () => (AuthenticationHeader | null);
 };
 export declare const GlobalApiConfig: GlobalApiConfigOptions;

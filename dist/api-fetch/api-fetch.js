@@ -45,11 +45,11 @@ function preprocessBody(request) {
 }
 function getAuthenticationHeader(request) {
     var _a;
-    if (!request.body || !global_config_1.GlobalApiConfig.authentication || ((_a = request.options) === null || _a === void 0 ? void 0 : _a.ignoreAuthentication)) {
+    if (!request.body || !global_config_1.GlobalApiConfig.setAuthentication || ((_a = request.options) === null || _a === void 0 ? void 0 : _a.ignoreAuthentication)) {
         return undefined;
     }
-    const authentication = global_config_1.GlobalApiConfig.authentication();
-    if (authentication === undefined)
+    const authentication = global_config_1.GlobalApiConfig.setAuthentication();
+    if (authentication === null)
         return undefined;
     return { 'Authentication': authentication };
 }
