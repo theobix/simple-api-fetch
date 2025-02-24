@@ -15,4 +15,6 @@ export type ApiOptions<T> = {
     onfilterstep?: (request: Readonly<ApiRequest<T>>, i?: number, percent?: number) => void,
     onupdate?: (request: Readonly<ApiRequest<T>>, elapsedTime: number) => void
   }
-} & RequestInit & { headers?: HeadersInit & { 'Authentication': AuthenticationHeader } }
+} & RequestInit & {
+  headers?: HeadersInit & Partial<{ 'Authentication': AuthenticationHeader }>
+}

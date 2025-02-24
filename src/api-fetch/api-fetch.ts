@@ -40,7 +40,7 @@ function getAuthenticationHeader(request: ApiRequest<any>): HeadersInit | undefi
     }
 
     const authentication = GlobalApiConfig.setAuthentication()
-    if (authentication=== null) return undefined
+    if (authentication === null) return undefined
 
     return { 'Authentication': authentication }
 }

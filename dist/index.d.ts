@@ -10,6 +10,10 @@ declare const _default: {
         readonly TEXT: FilterChain<Response, Response, string>;
     };
     globalConfig: GlobalApiConfigOptions;
+    authentication: {
+        Bearer: (token: string) => import("./config/authentication").AuthenticationHeader;
+        Basic: (user: string, password: string) => import("./config/authentication").AuthenticationHeader;
+    };
     install: (app: any, options: Partial<GlobalApiConfigOptions>) => void;
 };
 export default _default;

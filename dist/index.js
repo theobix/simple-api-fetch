@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const api_request_1 = __importDefault(require("./api-fetch/api-request"));
 const filter_presets_1 = __importDefault(require("./api-filter-chain/filter-presets"));
 const global_config_1 = require("./config/global-config");
+const authentication_1 = require("./config/authentication");
 const api = {
     get: (url, responseFilterChain, options) => {
         const request = new api_request_1.default(url, 'GET', responseFilterChain, options);
@@ -16,7 +17,8 @@ const api = {
         return request.fetch();
     },
     filters: filter_presets_1.default,
-    globalConfig: global_config_1.GlobalApiConfig
+    globalConfig: global_config_1.GlobalApiConfig,
+    authentication: authentication_1.Authentication
 };
 exports.default = Object.assign({ install: (app, options) => {
         api.globalConfig = Object.assign(Object.assign({}, api.globalConfig), options);

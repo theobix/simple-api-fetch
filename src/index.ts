@@ -3,6 +3,7 @@ import {FilterChain} from "./api-filter-chain/filter-chain";
 import {ApiOptions} from "./api-fetch/api-options";
 import filterPresets from "./api-filter-chain/filter-presets";
 import {GlobalApiConfig, GlobalApiConfigOptions} from "./config/global-config";
+import {Authentication} from "./config/authentication";
 
 const api = {
   get: <T>(
@@ -24,7 +25,8 @@ const api = {
     return request.fetch()
   },
   filters: filterPresets,
-  globalConfig: GlobalApiConfig
+  globalConfig: GlobalApiConfig,
+  authentication: Authentication
 }
 
 export default {
