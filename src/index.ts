@@ -28,8 +28,11 @@ const api = {
 }
 
 export default {
-  install: (app: any, options: GlobalApiConfigOptions) => {
-    api.globalConfig = options
+  install: (app: any, options: Partial<GlobalApiConfigOptions>) => {
+    api.globalConfig = {
+      ...api.globalConfig,
+      ...options,
+    }
     app.config.globalProperties.$api = api
   },
   ...api
