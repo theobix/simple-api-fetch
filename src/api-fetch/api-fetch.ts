@@ -35,9 +35,12 @@ async function preprocessBody(request: ApiRequest<any>): Promise<BodyInit | unde
 }
 
 function getAuthenticationHeader(request: ApiRequest<any>): HeadersInit | undefined {
-    if (!request.body || !GlobalApiConfig.authentication || request.options?.ignoreAuthentication) {
+    if (!request.body || !GlobalApiConfig.setAuthentication || request.options?.ignoreAuthentication) {
         return undefined
     }
 
-    return { 'Authentication': GlobalApiConfig.authentication() }
+    const authentication = GlobalApiConfig.setAuthentication()
+    if (authentication=== null) return undefined
+
+    return { 'Authentication': authentication }
 }

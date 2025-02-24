@@ -60,7 +60,7 @@ describe('apiFetch', () => {
     });
 
     it('should add global authentication header if defined', async () => {
-        GlobalApiConfig.authentication = jest.fn().mockReturnValue('Bearer 12345');
+        GlobalApiConfig.setAuthentication = jest.fn().mockReturnValue('Bearer 12345');
 
         await apiFetch(mockRequest);
 
@@ -70,7 +70,7 @@ describe('apiFetch', () => {
     });
 
     it('should not add authentication header if ignoreAuthentication is true', async () => {
-        GlobalApiConfig.authentication = jest.fn().mockReturnValue('Bearer 12345');
+        GlobalApiConfig.setAuthentication = jest.fn().mockReturnValue('Bearer 12345');
 
         if (mockRequest.options) mockRequest.options.ignoreAuthentication = true;
 

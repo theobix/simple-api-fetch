@@ -48,5 +48,8 @@ function getAuthenticationHeader(request) {
     if (!request.body || !global_config_1.GlobalApiConfig.authentication || ((_a = request.options) === null || _a === void 0 ? void 0 : _a.ignoreAuthentication)) {
         return undefined;
     }
-    return { 'Authentication': global_config_1.GlobalApiConfig.authentication() };
+    const authentication = global_config_1.GlobalApiConfig.authentication();
+    if (authentication === undefined)
+        return undefined;
+    return { 'Authentication': authentication };
 }
