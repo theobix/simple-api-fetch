@@ -10,6 +10,6 @@ declare const _default: {
         readonly TEXT: FilterChain<Response, Response, string>;
     };
     globalConfig: GlobalApiConfigOptions;
-    install: (app: any, options: GlobalApiConfigOptions) => void;
+    install: (app: any, options: Partial<GlobalApiConfigOptions>) => void;
 };
 export default _default;

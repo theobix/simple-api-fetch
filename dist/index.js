@@ -19,6 +19,6 @@ const api = {
     globalConfig: global_config_1.GlobalApiConfig
 };
 exports.default = Object.assign({ install: (app, options) => {
-        api.globalConfig = options;
+        api.globalConfig = Object.assign(Object.assign({}, api.globalConfig), options);
         app.config.globalProperties.$api = api;
     } }, api);
