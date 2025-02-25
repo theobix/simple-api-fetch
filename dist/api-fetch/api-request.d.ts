@@ -14,7 +14,6 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
     setState(state: RequestState): void;
     startUpdateInterval(): void;
     onstart(): void;
-    onerror(requestError: RequestError): void;
     onfilterstep(i: number, filterCount: number): void;
     fetch(): Promise<T>;
     private makeRequest;
@@ -22,4 +21,6 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
     private handleHttpError;
     private handleNetworkError;
     private handleFilterError;
+    private beforeEachRequestConfig;
+    onerror(requestError: RequestError): void;
 }

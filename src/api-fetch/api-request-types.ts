@@ -4,10 +4,11 @@ import {ApiOptions} from "./api-options";
 
 export type FetchMethod = 'GET' | 'POST'
 export type RequestState = 'PENDING' | 'FILTERING' | 'SUCCESS' | 'ERROR'
+export type RequestErrorType = 'NETWORK' | 'HTTP' | 'FILTER'
 
 export class RequestError extends Error {
   constructor(
-      public readonly type: 'NETWORK' | 'HTTP' | 'FILTER',
+      public readonly type: RequestErrorType,
       public readonly status: number,
       public readonly statusText: string | any
   ) {

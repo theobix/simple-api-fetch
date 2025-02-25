@@ -1,10 +1,11 @@
 import { FilterChain } from "./api-filter-chain/filter-chain";
 import { ApiOptions } from "./api-fetch/api-options";
 import { ApiGlobalConfigOptions } from "./config/global-config";
+import { App } from "vue";
 declare const _default: {
     get: <T>(url: string, responseFilterChain: FilterChain<Response, any, T>, options?: ApiOptions<T> | undefined) => Promise<T>;
     post: <T_1>(url: string, body: BodyInit, responseFilterChain: FilterChain<Response, any, T_1>, options?: ApiOptions<T_1> | undefined) => Promise<T_1>;
-    install: (app: any, options: Partial<ApiGlobalConfigOptions>) => void;
+    install: (app: App, options: Partial<ApiGlobalConfigOptions>) => void;
 };
 export default _default;
 export declare const ApiGlobalConfig: ApiGlobalConfigOptions;

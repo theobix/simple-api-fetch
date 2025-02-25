@@ -3,7 +3,6 @@ import {GlobalConfig} from "../config/global-config";
 
 export default async function apiFetch(request: ApiRequest<any>): Promise<Response> {
     const url = await preprocessUrl(request)
-    request = beforeEachRequestConfig(request)
     return await fetch(url, {
         ...{
             method: request.method,
@@ -44,17 +43,4 @@ function getAuthenticationHeader(request: ApiRequest<any>): HeadersInit | undefi
     if (authorization === null) return undefined
 
     return { 'Authorization': authorization }
-}
-
-function beforeEachRequestConfig(request: ApiRequest<any>) {
-    if (GlobalConfig.beforeEach) request = GlobalConfig.beforeEach(request)
-    GlobalConfig.beforeEachMatching?.filter(matcher =>
-        ("match" in matcher && matcher.match(request)) ||
-        ("matchEndpoint" in matcher && matcher.matchEndpoint === new URL(request.url).pathname) ||
-        ("matchUrl" in matcher && matcher.matchUrl === request.url) ||
-        ("matchMethod" in matcher && matcher.matchMethod === request.method)
-    )?.forEach(matcher =>
-        request = matcher.process(request)
-    );
-    return request
 }

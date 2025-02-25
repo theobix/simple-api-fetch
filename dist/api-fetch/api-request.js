@@ -50,16 +50,6 @@ class ApiRequestImpl {
         var _a, _b, _c;
         (_c = (_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onstart) === null || _c === void 0 ? void 0 : _c.call(_b, this);
     }
-    onerror(requestError) {
-        var _a, _b, _c;
-        this.setState('ERROR');
-        if ((_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onerror) {
-            this.options.callbacks.onerror(this, requestError, global_config_1.GlobalConfig.errorHandler);
-        }
-        else {
-            (_c = global_config_1.GlobalConfig.errorHandler) === null || _c === void 0 ? void 0 : _c.call(global_config_1.GlobalConfig, requestError);
-        }
-    }
     onfilterstep(i, filterCount) {
         var _a, _b, _c;
         (_c = (_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onfilterstep) === null || _c === void 0 ? void 0 : _c.call(_b, this, i, filterCount);
@@ -70,7 +60,7 @@ class ApiRequestImpl {
             this.startUpdateInterval();
             const response = yield this.makeRequest();
             if (!response.ok)
-                return this.handleHttpError(response);
+                throw this.handleHttpError(response);
             this.setState('FILTERING');
             const filtered = yield this.applyFilters(response);
             this.setState('SUCCESS');
@@ -80,10 +70,11 @@ class ApiRequestImpl {
     makeRequest() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                this.beforeEachRequestConfig();
                 return yield (0, api_fetch_1.default)(this);
             }
             catch (error) {
-                return this.handleNetworkError(error);
+                throw this.handleNetworkError(error);
             }
         });
     }
@@ -93,24 +84,48 @@ class ApiRequestImpl {
                 return yield this.responseFilterChain.apply(response, (i, filterCount) => this.onfilterstep(i, filterCount));
             }
             catch (error) {
-                return this.handleFilterError(error);
+                throw this.handleFilterError(error);
             }
         });
     }
     handleHttpError(response) {
-        const error = new api_request_types_1.RequestError('HTTP', response.status, response.statusText);
-        this.onerror(error);
-        throw error;
+        const requestError = new api_request_types_1.RequestError('HTTP', response.status, response.statusText);
+        this.onerror(requestError);
+        return requestError;
     }
     handleNetworkError(error) {
         const requestError = new api_request_types_1.RequestError('NETWORK', 0, error);
         this.onerror(requestError);
-        throw requestError;
+        return requestError;
     }
     handleFilterError(error) {
         const requestError = new api_request_types_1.RequestError('FILTER', 0, error);
         this.onerror(requestError);
-        throw requestError;
+        return requestError;
+    }
+    beforeEachRequestConfig() {
+        var _a, _b;
+        if (global_config_1.GlobalConfig.beforeEach)
+            global_config_1.GlobalConfig.beforeEach(this);
+        (_b = (_a = global_config_1.GlobalConfig.beforeEachMatching) === null || _a === void 0 ? void 0 : _a.filter(matcher => ("match" in matcher && matcher.match(this)) ||
+            ("matchEndpoint" in matcher && matcher.matchEndpoint === new URL(this.url).pathname) ||
+            ("matchUrl" in matcher && matcher.matchUrl === this.url) ||
+            ("matchMethod" in matcher && matcher.matchMethod === this.method))) === null || _b === void 0 ? void 0 : _b.forEach(matcher => matcher.process(this));
+    }
+    onerror(requestError) {
+        var _a, _b, _c, _d, _e, _f;
+        this.setState('ERROR');
+        if ((_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onerror) {
+            this.options.callbacks.onerror(this, requestError, global_config_1.GlobalConfig.errorHandler);
+        }
+        else {
+            if ((_c = global_config_1.GlobalConfig.errorHandler) === null || _c === void 0 ? void 0 : _c.catchAll)
+                global_config_1.GlobalConfig.errorHandler.catchAll(requestError);
+            (_f = (_e = (_d = global_config_1.GlobalConfig.errorHandler) === null || _d === void 0 ? void 0 : _d.catch) === null || _e === void 0 ? void 0 : _e.filter(matcher => ("match" in matcher && matcher.match(requestError)) ||
+                ("matchErrorType" in matcher && matcher.matchErrorType === requestError.type) ||
+                ("matchHttpCode" in matcher && requestError.type === 'HTTP' && matcher.matchHttpCode === requestError.status) ||
+                ("matchStatusText" in matcher && matcher.matchStatusText === requestError.statusText))) === null || _f === void 0 ? void 0 : _f.forEach(matcher => matcher.process(requestError));
+        }
     }
 }
 exports.default = ApiRequestImpl;

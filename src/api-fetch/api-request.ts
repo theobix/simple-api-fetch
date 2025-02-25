@@ -50,15 +50,6 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
   public onstart() {
     this.options?.callbacks?.onstart?.(this)
   }
-  public onerror(requestError: RequestError) {
-    this.setState('ERROR')
-
-    if (this.options?.callbacks?.onerror) {
-      this.options.callbacks.onerror(this, requestError, GlobalConfig.errorHandler)
-    } else {
-      GlobalConfig.errorHandler?.(requestError)
-    }
-  }
   public onfilterstep(i: number, filterCount: number)  {
     this.options?.callbacks?.onfilterstep?.(this, i, filterCount)
   }
@@ -69,7 +60,7 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
 
     const response = await this.makeRequest()
 
-    if (!response.ok) return this.handleHttpError(response)
+    if (!response.ok) throw this.handleHttpError(response)
 
     this.setState('FILTERING')
     const filtered = await this.applyFilters(response)
@@ -80,9 +71,10 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
 
   private async makeRequest(): Promise<Response> {
     try {
+      this.beforeEachRequestConfig()
       return await apiFetch(this)
     } catch (error: any) {
-      return this.handleNetworkError(error)
+      throw this.handleNetworkError(error)
     }
   }
 
@@ -93,26 +85,56 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
           (i, filterCount) => this.onfilterstep(i, filterCount)
       )
     } catch (error: any) {
-      return this.handleFilterError(error)
+      throw this.handleFilterError(error)
     }
 
   }
 
-  private handleHttpError(response: Response): T {
-    const error = new RequestError('HTTP', response.status, response.statusText)
-    this.onerror(error)
-    throw error
+  private handleHttpError(response: Response) {
+    const requestError = new RequestError('HTTP', response.status, response.statusText)
+    this.onerror(requestError)
+    return requestError
   }
 
-  private handleNetworkError(error: any): Response {
+  private handleNetworkError(error: any) {
     const requestError = new RequestError('NETWORK', 0, error)
     this.onerror(requestError)
-    throw requestError
+    return requestError
   }
 
-  private handleFilterError(error: any): T {
+  private handleFilterError(error: any) {
     const requestError = new RequestError('FILTER', 0, error)
     this.onerror(requestError)
-    throw requestError
+    return requestError
+  }
+
+  private beforeEachRequestConfig() {
+    if (GlobalConfig.beforeEach) GlobalConfig.beforeEach(this)
+    GlobalConfig.beforeEachMatching?.filter(matcher =>
+        ("match" in matcher && matcher.match(this)) ||
+        ("matchEndpoint" in matcher && matcher.matchEndpoint === new URL(this.url).pathname) ||
+        ("matchUrl" in matcher && matcher.matchUrl === this.url) ||
+        ("matchMethod" in matcher && matcher.matchMethod === this.method)
+    )?.forEach(matcher =>
+        matcher.process(this)
+    );
+  }
+
+  public onerror(requestError: RequestError) {
+    this.setState('ERROR')
+
+    if (this.options?.callbacks?.onerror) {
+      this.options.callbacks.onerror(this, requestError, GlobalConfig.errorHandler)
+    } else {
+      if (GlobalConfig.errorHandler?.catchAll) GlobalConfig.errorHandler.catchAll(requestError)
+      GlobalConfig.errorHandler?.catch?.filter(matcher =>
+          ("match" in matcher && matcher.match(requestError)) ||
+          ("matchErrorType" in matcher && matcher.matchErrorType === requestError.type) ||
+          ("matchHttpCode" in matcher && requestError.type === 'HTTP' && matcher.matchHttpCode === requestError.status) ||
+          ("matchStatusText" in matcher && matcher.matchStatusText === requestError.statusText)
+      )?.forEach(matcher =>
+          matcher.process(requestError)
+      );
+    }
   }
 }
