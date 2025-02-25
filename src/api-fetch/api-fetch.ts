@@ -3,6 +3,7 @@ import {GlobalApiConfig} from "../config/global-config";
 
 export default async function apiFetch(request: ApiRequest<any>): Promise<Response> {
     const url = await preprocessUrl(request)
+    request = beforeEachRequestConfig(request)
     return await fetch(url, {
         ...{
             method: request.method,
@@ -35,12 +36,25 @@ async function preprocessBody(request: ApiRequest<any>): Promise<BodyInit | unde
 }
 
 function getAuthenticationHeader(request: ApiRequest<any>): HeadersInit | undefined {
-    if (!request.body || !GlobalApiConfig.setAuthentication || request.options?.ignoreAuthentication) {
+    if (!request.body || !GlobalApiConfig.setAuthorization || request.options?.ignoreAuthentication) {
         return undefined
     }
 
-    const authentication = GlobalApiConfig.setAuthentication()
-    if (authentication === null) return undefined
+    const authorization = GlobalApiConfig.setAuthorization()
+    if (authorization === null) return undefined
 
-    return { 'Authentication': authentication }
+    return { 'Authorization': authorization }
+}
+
+function beforeEachRequestConfig(request: ApiRequest<any>) {
+    if (GlobalApiConfig.beforeEach) request = GlobalApiConfig.beforeEach(request)
+    GlobalApiConfig.beforeEachMatching?.filter(matcher =>
+        ("match" in matcher && matcher.match(request)) ||
+        ("matchEndpoint" in matcher && matcher.matchEndpoint === new URL(request.url).pathname) ||
+        ("matchUrl" in matcher && matcher.matchUrl === request.url) ||
+        ("matchMethod" in matcher && matcher.matchMethod === request.method)
+    )?.forEach(matcher =>
+        request = matcher.process(request)
+    );
+    return request
 }

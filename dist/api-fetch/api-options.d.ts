@@ -1,7 +1,7 @@
 import { FilterChain } from "../api-filter-chain/filter-chain";
 import { ApiRequest, RequestError, RequestState } from "./api-request-types";
 import { GlobalApiConfig } from "../config/global-config";
-import { AuthenticationHeader } from "../config/authentication";
+import { AuthorizationHeader } from "../config/authorization";
 export type ApiOptions<T> = {
     updateInterval?: number;
     bodyPreprocessing?: FilterChain<BodyInit, any, BodyInit>;
@@ -15,6 +15,6 @@ export type ApiOptions<T> = {
     };
 } & RequestInit & {
     headers?: HeadersInit & Partial<{
-        'Authentication': AuthenticationHeader;
+        'Authorization': AuthorizationHeader;
     }>;
 };
