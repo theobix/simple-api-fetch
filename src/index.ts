@@ -4,6 +4,7 @@ import {ApiOptions} from "./api-fetch/api-options";
 import FilterPresets from "./api-filter-chain/filter-presets";
 import {GlobalConfig, ApiGlobalConfigOptions} from "./config/global-config";
 import {Authorization} from "./api-fetch/authorization";
+import {App} from "vue";
 
 const api = {
   get: <T>(
@@ -27,7 +28,7 @@ const api = {
 }
 
 export default {
-  install: (app: any, options: Partial<ApiGlobalConfigOptions>) => {
+  install: (app: App, options: Partial<ApiGlobalConfigOptions>) => {
     Object.assign(ApiGlobalConfig, options)
     app.config.globalProperties.$api = api
   },
