@@ -54,10 +54,10 @@ class ApiRequestImpl {
         var _a, _b, _c;
         this.setState('ERROR');
         if ((_b = (_a = this.options) === null || _a === void 0 ? void 0 : _a.callbacks) === null || _b === void 0 ? void 0 : _b.onerror) {
-            this.options.callbacks.onerror(this, requestError, global_config_1.GlobalApiConfig.errorHandler);
+            this.options.callbacks.onerror(this, requestError, global_config_1.GlobalConfig.errorHandler);
         }
         else {
-            (_c = global_config_1.GlobalApiConfig.errorHandler) === null || _c === void 0 ? void 0 : _c.call(global_config_1.GlobalApiConfig, requestError);
+            (_c = global_config_1.GlobalConfig.errorHandler) === null || _c === void 0 ? void 0 : _c.call(global_config_1.GlobalConfig, requestError);
         }
     }
     onfilterstep(i, filterCount) {

@@ -1,4 +1,4 @@
-import {GlobalApiConfig} from "../config/global-config";
+import {GlobalConfig} from "../config/global-config";
 import {FilterChain} from "../api-filter-chain/filter-chain";
 import apiFetch from "./api-fetch";
 import {ApiRequest, FetchMethod} from "./api-request-types";
@@ -26,10 +26,10 @@ describe('apiFetch', () => {
             json: jest.fn().mockResolvedValue({ data: 'test' }),
         });
 
-        GlobalApiConfig.urlProcessor = FilterChain.Create()
-        GlobalApiConfig.bodyPreprocessing = FilterChain.Create()
-        GlobalApiConfig.beforeEach = undefined
-        GlobalApiConfig.beforeEachMatching = undefined
+        GlobalConfig.urlProcessor = FilterChain.Create()
+        GlobalConfig.bodyPreprocessing = FilterChain.Create()
+        GlobalConfig.beforeEach = undefined
+        GlobalConfig.beforeEachMatching = undefined
     });
 
     it('should fetch with the correct parameters', async () => {
@@ -48,7 +48,7 @@ describe('apiFetch', () => {
     });
 
     it('should handle global body preprocessing', async () => {
-        GlobalApiConfig.bodyPreprocessing = FilterChain.Create().then(
+        GlobalConfig.bodyPreprocessing = FilterChain.Create().then(
             jest.fn().mockResolvedValue('processedBody'),
         )
 
@@ -62,7 +62,7 @@ describe('apiFetch', () => {
     });
 
     it('should add global authentication header if defined', async () => {
-        GlobalApiConfig.setAuthorization = jest.fn().mockReturnValue('Bearer 12345');
+        GlobalConfig.setAuthorization = jest.fn().mockReturnValue('Bearer 12345');
 
         await apiFetch(mockRequest);
 
@@ -72,7 +72,7 @@ describe('apiFetch', () => {
     });
 
     it('should not add authentication header if ignoreAuthentication is true', async () => {
-        GlobalApiConfig.setAuthorization = jest.fn().mockReturnValue('Bearer 12345');
+        GlobalConfig.setAuthorization = jest.fn().mockReturnValue('Bearer 12345');
 
         if (mockRequest.options) mockRequest.options.ignoreAuthentication = true;
 
@@ -86,7 +86,7 @@ describe('apiFetch', () => {
     it('should preprocess URL using GlobalApiConfig', async () => {
         mockRequest.url = 'https://api.example.com/data';
 
-        GlobalApiConfig.urlProcessor = FilterChain.Create().then(
+        GlobalConfig.urlProcessor = FilterChain.Create().then(
             jest.fn().mockResolvedValue(mockRequest.url + '/api')
         )
 
@@ -104,7 +104,7 @@ describe('apiFetch', () => {
 
     it('should send the correct Authorization header when setAuthorization is defined', async () => {
         const mockAuthorization = 'Bearer token';
-        GlobalApiConfig.setAuthorization = jest.fn(() => mockAuthorization); // Mock setAuthorization to return a token
+        GlobalConfig.setAuthorization = jest.fn(() => mockAuthorization); // Mock setAuthorization to return a token
 
         await apiFetch(mockRequest);
 
@@ -117,7 +117,7 @@ describe('apiFetch', () => {
     });
 
     it('should not send an Authorization header if setAuthorization returns null', async () => {
-        GlobalApiConfig.setAuthorization = jest.fn(() => null); // Mock setAuthorization to return null
+        GlobalConfig.setAuthorization = jest.fn(() => null); // Mock setAuthorization to return null
 
         await apiFetch(mockRequest);
 
@@ -134,7 +134,7 @@ describe('apiFetch', () => {
             ...req,
             method: 'POST' as FetchMethod
         }));
-        GlobalApiConfig.beforeEach = mockBeforeEach; // Mock beforeEach
+        GlobalConfig.beforeEach = mockBeforeEach; // Mock beforeEach
 
         await apiFetch(mockRequest);
 
@@ -154,7 +154,7 @@ describe('apiFetch', () => {
             match: jest.fn((req: ApiRequest<any>) => req.url === 'https://www.example.com/api/test'),
             process: mockProcess
         };
-        GlobalApiConfig.beforeEachMatching = [mockMatcher]; // Mock beforeEachMatching
+        GlobalConfig.beforeEachMatching = [mockMatcher]; // Mock beforeEachMatching
 
         await apiFetch(mockRequest);
 
@@ -174,7 +174,7 @@ describe('apiFetch', () => {
             matchUrl: 'https://www.example.com/api/test',
             process: mockProcess
         };
-        GlobalApiConfig.beforeEachMatching = [mockMatcher];
+        GlobalConfig.beforeEachMatching = [mockMatcher];
 
         await apiFetch(mockRequest);
 
@@ -192,7 +192,7 @@ describe('apiFetch', () => {
             matchEndpoint: '/api/test',
             process: mockProcess
         };
-        GlobalApiConfig.beforeEachMatching = [mockMatcher];
+        GlobalConfig.beforeEachMatching = [mockMatcher];
 
         await apiFetch(mockRequest);
 
@@ -210,7 +210,7 @@ describe('apiFetch', () => {
             matchMethod: 'GET' as FetchMethod,
             process: mockProcess
         };
-        GlobalApiConfig.beforeEachMatching = [mockMatcher];
+        GlobalConfig.beforeEachMatching = [mockMatcher];
 
         await apiFetch(mockRequest);
 
@@ -228,7 +228,7 @@ describe('apiFetch', () => {
             { ...req, body: req.body + "_2" } as ApiRequest<any>
         ));
 
-        GlobalApiConfig.beforeEachMatching = [
+        GlobalConfig.beforeEachMatching = [
             { matchEndpoint: '/api/test', process: mockProcess1 },
             { matchMethod: 'GET', process: mockProcess2 }
         ];
@@ -248,7 +248,7 @@ describe('apiFetch', () => {
             matchUrl: '/different-url',
             process: mockProcess
         };
-        GlobalApiConfig.beforeEachMatching = [mockMatcher];
+        GlobalConfig.beforeEachMatching = [mockMatcher];
 
         await apiFetch(mockRequest);
 

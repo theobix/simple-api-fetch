@@ -2,7 +2,7 @@ import {ApiRequest, FetchMethod, RequestError, RequestState} from "./api-request
 import {ApiOptions} from "./api-options";
 import {FilterChain} from "../api-filter-chain/filter-chain";
 import apiFetch from "./api-fetch";
-import {GlobalApiConfig} from "../config/global-config";
+import {GlobalConfig} from "../config/global-config";
 
 
 export default class ApiRequestImpl<T> implements ApiRequest<T> {
@@ -54,9 +54,9 @@ export default class ApiRequestImpl<T> implements ApiRequest<T> {
     this.setState('ERROR')
 
     if (this.options?.callbacks?.onerror) {
-      this.options.callbacks.onerror(this, requestError, GlobalApiConfig.errorHandler)
+      this.options.callbacks.onerror(this, requestError, GlobalConfig.errorHandler)
     } else {
-      GlobalApiConfig.errorHandler?.(requestError)
+      GlobalConfig.errorHandler?.(requestError)
     }
   }
   public onfilterstep(i: number, filterCount: number)  {

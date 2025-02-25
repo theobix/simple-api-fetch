@@ -1,6 +1,6 @@
 import {FilterChain} from "../api-filter-chain/filter-chain";
 import {ApiRequest, FetchMethod, RequestError} from "../api-fetch/api-request-types";
-import {AuthorizationHeader} from "./authorization";
+import {AuthorizationHeader} from "../api-fetch/authorization";
 
 type ApiRequestProcessor = (request: ApiRequest<any>) => ApiRequest<any>
 type ApiRequestProcessorMatcher = Array<(
@@ -10,7 +10,7 @@ type ApiRequestProcessorMatcher = Array<(
     { matchMethod: FetchMethod }
 ) & { process: ApiRequestProcessor }>
 
-export type GlobalApiConfigOptions = {
+export type ApiGlobalConfigOptions = {
     bodyPreprocessing: FilterChain<BodyInit, any, BodyInit>,
     errorHandler?: (error: RequestError) => void,
     urlProcessor: FilterChain<string, any, string>
@@ -19,7 +19,7 @@ export type GlobalApiConfigOptions = {
     beforeEachMatching?: ApiRequestProcessorMatcher,
 }
 
-export const GlobalApiConfig: GlobalApiConfigOptions = {
+export const GlobalConfig: ApiGlobalConfigOptions = {
     bodyPreprocessing: FilterChain.Create<BodyInit>(),
     urlProcessor: FilterChain.Create<string>(),
 }

@@ -1,7 +1,7 @@
 import { RequestError } from './api-request-types'
 import apiFetch from './api-fetch'
 import { FilterChain } from '../api-filter-chain/filter-chain'
-import { GlobalApiConfig } from '../config/global-config'
+import { GlobalConfig } from '../config/global-config'
 import ApiRequestImpl from "./api-request";
 
 // Mock dependencies
@@ -26,7 +26,7 @@ describe('ApiRequestImpl', () => {
 
         mockFilterChain = { apply: mockFilter }
 
-        GlobalApiConfig.errorHandler = jest.fn()
+        GlobalConfig.errorHandler = jest.fn()
 
         // Create a new instance of ApiRequestImpl for each test
         apiRequest = new ApiRequestImpl(

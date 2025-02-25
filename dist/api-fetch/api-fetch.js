@@ -29,14 +29,14 @@ function apiFetch(request) {
 exports.default = apiFetch;
 function preprocessUrl(request) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield global_config_1.GlobalApiConfig.urlProcessor.apply(request.url);
+        return yield global_config_1.GlobalConfig.urlProcessor.apply(request.url);
     });
 }
 function preprocessBody(request) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!request.body)
             return undefined;
-        const { bodyPreprocessing: globalPreprocessing } = global_config_1.GlobalApiConfig;
+        const { bodyPreprocessing: globalPreprocessing } = global_config_1.GlobalConfig;
         const { bodyPreprocessing: requestPreprocessing } = request.options || {};
         let preprocessedBody = yield globalPreprocessing.apply(request.body);
         if (requestPreprocessing)
@@ -46,19 +46,19 @@ function preprocessBody(request) {
 }
 function getAuthenticationHeader(request) {
     var _a;
-    if (!request.body || !global_config_1.GlobalApiConfig.setAuthorization || ((_a = request.options) === null || _a === void 0 ? void 0 : _a.ignoreAuthentication)) {
+    if (!request.body || !global_config_1.GlobalConfig.setAuthorization || ((_a = request.options) === null || _a === void 0 ? void 0 : _a.ignoreAuthentication)) {
         return undefined;
     }
-    const authorization = global_config_1.GlobalApiConfig.setAuthorization();
+    const authorization = global_config_1.GlobalConfig.setAuthorization();
     if (authorization === null)
         return undefined;
     return { 'Authorization': authorization };
 }
 function beforeEachRequestConfig(request) {
     var _a, _b;
-    if (global_config_1.GlobalApiConfig.beforeEach)
-        request = global_config_1.GlobalApiConfig.beforeEach(request);
-    (_b = (_a = global_config_1.GlobalApiConfig.beforeEachMatching) === null || _a === void 0 ? void 0 : _a.filter(matcher => ("match" in matcher && matcher.match(request)) ||
+    if (global_config_1.GlobalConfig.beforeEach)
+        request = global_config_1.GlobalConfig.beforeEach(request);
+    (_b = (_a = global_config_1.GlobalConfig.beforeEachMatching) === null || _a === void 0 ? void 0 : _a.filter(matcher => ("match" in matcher && matcher.match(request)) ||
         ("matchEndpoint" in matcher && matcher.matchEndpoint === new URL(request.url).pathname) ||
         ("matchUrl" in matcher && matcher.matchUrl === request.url) ||
         ("matchMethod" in matcher && matcher.matchMethod === request.method))) === null || _b === void 0 ? void 0 : _b.forEach(matcher => request = matcher.process(request));
