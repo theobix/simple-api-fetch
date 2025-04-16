@@ -35,7 +35,7 @@ async function preprocessBody(request: ApiRequest<any>): Promise<BodyInit | unde
 }
 
 function getAuthenticationHeader(request: ApiRequest<any>): HeadersInit | undefined {
-    if (!request.body || !GlobalConfig.setAuthorization || request.options?.ignoreAuthentication) {
+    if (!GlobalConfig.setAuthorization || request.options?.ignoreAuthentication) {
         return undefined
     }
 
